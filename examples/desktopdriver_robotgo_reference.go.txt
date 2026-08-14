@@ -1,0 +1,108 @@
+//go:build desktop
+
+// This file is a reference implementation only — it is NOT compiled by
+// default (see driver_stub.go) and its dependency is not fetched by
+// `go mod tidy` unless you opt in, because it requires CGO plus platform
+// accessibility libraries (X11/xdotool headers on Linux, no extra deps on
+// Windows/macOS) that aren't guaranteed to exist wherever this project is
+// built or CI'd.
+//
+// To enable it:
+//   1. go get github.com/go-vgo/robotgo
+//   2. go build -tags desktop ./...
+//
+// Selector convention used below: "x,y" for absolute-pixel clicks (native
+// desktop apps rarely expose CSS-selector-like locators without an
+// accessibility bridge); wire in a real UI-Automation/AT-SPI lookup here if
+// your target app needs id/name-based selectors instead of coordinates.
+package desktopdriver
+
+import (
+	"context"
+	"fmt"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/go-vgo/robotgo"
+
+	"uitester/internal/domain"
+)
+
+type Config struct {
+	// TargetPID, if set, restricts screenshot/window operations to a
+	// specific process (e.g. the app under test launched by the runner).
+	TargetPID int
+}
+
+type Driver struct{ cfg Config }
+
+func New(cfg Config) *Driver { return &Driver{cfg: cfg} }
+
+func (d *Driver) Connect(ctx context.Context) error { return nil }
+
+func (d *Driver) Navigate(ctx context.Context, url string) error { return domain.ErrUnsupported }
+
+func (d *Driver) Click(ctx context.Context, selector string) error {
+	x, y, err := parseXY(selector)
+	if err != nil {
+		return err
+	}
+	robotgo.Move(x, y)
+	robotgo.Click()
+	return nil
+}
+
+func (d *Driver) Input(ctx context.Context, selector, text string) error {
+	if selector != "" {
+		if err := d.Click(ctx, selector); err != nil {
+			return err
+		}
+	}
+	robotgo.TypeStr(text)
+	return nil
+}
+
+func (d *Driver) WaitFor(ctx context.Context, selector string, timeout time.Duration) error {
+	// Coordinate-based automation has no generic "element exists" check;
+	// callers typically use ActionSleep instead. Kept here to satisfy the
+	// interface and to leave a clear extension point for a bitmap/image
+	// match against selector (a path to a reference PNG), which robotgo
+	// also supports via robotgo.FindColor / template matching.
+	select {
+	case <-time.After(timeout):
+		return fmt.Errorf("wait_for is a no-op for the coordinate-based desktop driver; use image matching instead")
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+}
+
+func (d *Driver) GetText(ctx context.Context, selector string) (string, error) {
+	return "", domain.ErrUnsupported
+}
+
+func (d *Driver) Screenshot(ctx context.Context) ([]byte, error) {
+	bmp := robotgo.CaptureScreen()
+	defer robotgo.FreeBitmap(bmp)
+	return robotgo.ToPngBytes(bmp)
+}
+
+func (d *Driver) Close(ctx context.Context) error { return nil }
+
+func parseXY(selector string) (int, int, error) {
+	parts := strings.SplitN(selector, ",", 2)
+	if len(parts) != 2 {
+		return 0, 0, fmt.Errorf("desktop driver selector must be \"x,y\", got %q", selector)
+	}
+	x, err := strconv.Atoi(strings.TrimSpace(parts[0]))
+	if err != nil {
+		return 0, 0, fmt.Errorf("invalid x in selector %q: %w", selector, err)
+	}
+	y, err := strconv.Atoi(strings.TrimSpace(parts[1]))
+	if err != nil {
+		return 0, 0, fmt.Errorf("invalid y in selector %q: %w", selector, err)
+	}
+	return x, y, nil
+}
+
+var _ domain.UIDriver = (*Driver)(nil)
