@@ -1,0 +1,33 @@
+{
+  "tools": {
+    "chrome": {
+      "headless": true,
+      "no_sandbox": false
+    },
+    "selenium": {
+      "remote_url": "http://localhost:4444/wd/hub",
+      "capabilities": { "browserName": "chrome" }
+    },
+    "appium": {
+      "remote_url": "http://localhost:4723/wd/hub",
+      "capabilities": {
+        "platformName": "Android",
+        "automationName": "UiAutomator2",
+        "appPackage": "com.example.app",
+        "appActivity": ".MainActivity"
+      }
+    },
+    "winappdriver": {
+      "remote_url": "http://127.0.0.1:4723",
+      "capabilities": { "app": "C:\\Program Files\\Example\\Example.exe" }
+    }
+  },
+  "reporters": {
+    "json_path": "results/last_run.json",
+    "allure_dir": "results/allure-results"
+  },
+  "screenshots": {
+    "auto": true,
+    "dir": "results/screenshots"
+  }
+}

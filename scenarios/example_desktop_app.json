@@ -1,0 +1,10 @@
+{
+  "name": "Open About dialog in Notepad",
+  "tool": "winappdriver",
+  "steps": [
+    { "type": "wait_for", "selector": "TextEditorControl1", "timeout": "10s" },
+    { "type": "input", "selector": "TextEditorControl1", "value": "Hello from uitester" },
+    { "type": "click", "selector": "Item 3" },
+    { "type": "assert_exist", "selector": "AboutNotepadDialog", "timeout": "5s" }
+  ]
+}

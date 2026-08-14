@@ -1,0 +1,14 @@
+{
+  "name": "Login with valid credentials",
+  "tool": "chrome",
+  "base_url": "https://example.com/login",
+  "steps": [
+    { "type": "wait_for", "selector": "#username", "timeout": "10s" },
+    { "type": "input", "selector": "#username", "value": "demo-user" },
+    { "type": "input", "selector": "#password", "value": "demo-password", "sensitive": true },
+    { "type": "click", "selector": "#login-button" },
+    { "type": "wait_for", "selector": "#dashboard", "timeout": "15s" },
+    { "type": "assert_text", "selector": "#welcome-message", "value": "Welcome, demo-user" },
+    { "type": "screenshot", "value": "results/login-success.png" }
+  ]
+}
