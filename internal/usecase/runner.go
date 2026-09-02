@@ -37,6 +37,13 @@ func (o Options) withDefaults() Options {
 	return o
 }
 
+// ProgressFunc is an optional callback the Runner invokes after each step
+// completes (passed or failed), before the fail-fast break. It receives the
+// zero-based step index and the full StepResult — including attachments and
+// the masked log line — which lets callers like the web UI stream per-step
+// progress without polling or waiting for the whole run to finish.
+type ProgressFunc func(stepIndex int, stepResult domain.StepResult)
+
 // Runner is the application's single use case: "execute a Scenario against
 // a chosen tool and report the outcome." It depends only on the domain
 // ports (UIDriver, ToolConnector, Reporter) — never on chromedp, Selenium,
@@ -65,7 +72,12 @@ func NewRunnerWithOptions(registry *ToolRegistry, logger *slog.Logger, opts Opti
 // Run executes a single scenario end to end: resolves the tool, connects a
 // driver, walks the steps, always closes the driver, and forwards the
 // result to every registered Reporter.
-func (r *Runner) Run(ctx context.Context, scenario domain.Scenario, toolCfg map[string]interface{}) (domain.ScenarioResult, error) {
+//
+// The variadic onProgress callbacks are optional and backward-compatible:
+// existing callers (CLI, tests) pass none and behavior is unchanged. When
+// present, each fires once per completed step, before the fail-fast break,
+// so a UI can show live progress even when a later step will abort the run.
+func (r *Runner) Run(ctx context.Context, scenario domain.Scenario, toolCfg map[string]interface{}, onProgress ...ProgressFunc) (domain.ScenarioResult, error) {
 	if err := scenario.Validate(); err != nil {
 		return domain.ScenarioResult{}, fmt.Errorf("invalid scenario: %w", err)
 	}
@@ -111,6 +123,9 @@ func (r *Runner) Run(ctx context.Context, scenario domain.Scenario, toolCfg map[
 	for i, step := range scenario.Steps {
 		stepResult := r.runStep(ctx, driver, scenario.Name, i, step)
 		result.Steps = append(result.Steps, stepResult)
+		for _, cb := range onProgress {
+			cb(i, stepResult)
+		}
 		if stepResult.Status == domain.StatusFailed {
 			overall = domain.StatusFailed
 			r.logger.Error("step failed", "type", step.Type, "selector", step.Selector, "error", stepResult.Error)
