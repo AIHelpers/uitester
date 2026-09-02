@@ -1,0 +1,28 @@
+{
+  "name": "E-commerce: search, add to cart, and checkout",
+  "tool": "chrome",
+  "base_url": "https://example-shop.com",
+  "steps": [
+    { "type": "navigate", "value": "/" },
+    { "type": "wait_for", "selector": "#search-input", "timeout": "10s" },
+    { "type": "input", "selector": "#search-input", "value": "wireless headphones" },
+    { "type": "click", "selector": "#search-button" },
+    { "type": "wait_for", "selector": ".product-card", "timeout": "15s" },
+    { "type": "assert_text", "selector": ".product-card:first-child .product-name", "value": "Wireless Headphones Pro" },
+    { "type": "click", "selector": ".product-card:first-child .add-to-cart" },
+    { "type": "wait_for", "selector": "#cart-count", "timeout": "5s" },
+    { "type": "assert_text", "selector": "#cart-count", "value": "1" },
+    { "type": "click", "selector": "#cart-icon" },
+    { "type": "wait_for", "selector": "#checkout-button", "timeout": "10s" },
+    { "type": "click", "selector": "#checkout-button" },
+    { "type": "wait_for", "selector": "#shipping-form", "timeout": "10s" },
+    { "type": "input", "selector": "#shipping-name", "value": "Jane Doe" },
+    { "type": "input", "selector": "#shipping-address", "value": "123 Main Street" },
+    { "type": "input", "selector": "#shipping-city", "value": "Springfield" },
+    { "type": "input", "selector": "#shipping-zip", "value": "12345" },
+    { "type": "click", "selector": "#place-order" },
+    { "type": "wait_for", "selector": "#order-confirmation", "timeout": "15s" },
+    { "type": "assert_text", "selector": "#order-confirmation h1", "value": "Order Confirmed" },
+    { "type": "screenshot", "value": "results/ecommerce-checkout-success.png" }
+  ]
+}

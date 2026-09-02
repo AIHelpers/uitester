@@ -1,0 +1,16 @@
+{
+  "name": "Desktop: create and save a text file in Notepad",
+  "tool": "desktop",
+  "steps": [
+    { "type": "wait_for", "selector": "title:Untitled - Notepad", "timeout": "15s" },
+    { "type": "click", "selector": "win:0.5,0.5" },
+    { "type": "input", "selector": "focused", "value": "Hello from uitester!" },
+    { "type": "click", "selector": "win:0.02,0.02" },
+    { "type": "wait_for", "selector": "title:Save As", "timeout": "10s" },
+    { "type": "input", "selector": "focused", "value": "C:\\Users\\Public\\Documents\\uitester-test.txt" },
+    { "type": "click", "selector": "win:0.5,0.9" },
+    { "type": "wait_for", "selector": "title:uitester-test.txt - Notepad", "timeout": "10s" },
+    { "type": "assert_text", "selector": "title", "value": "uitester-test.txt - Notepad" },
+    { "type": "screenshot", "value": "results/desktop-notepad-saved.png" }
+  ]
+}

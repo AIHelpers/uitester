@@ -1,0 +1,25 @@
+{
+  "name": "macOS: verify text editor save and reopen",
+  "tool": "appium",
+  "steps": [
+    { "type": "wait_for", "selector": "id=document-window", "timeout": "15s" },
+    { "type": "click", "selector": "id=text-area" },
+    { "type": "input", "selector": "id=text-area", "value": "macOS automation test content" },
+    { "type": "click", "selector": "id=menu-file" },
+    { "type": "wait_for", "selector": "id=menu-item-save", "timeout": "5s" },
+    { "type": "click", "selector": "id=menu-item-save" },
+    { "type": "wait_for", "selector": "id=save-dialog", "timeout": "10s" },
+    { "type": "input", "selector": "id=save-name-field", "value": "uitester-macos-test" },
+    { "type": "click", "selector": "id=save-confirm" },
+    { "type": "wait_for", "selector": "id=document-window", "timeout": "10s" },
+    { "type": "click", "selector": "id=menu-file" },
+    { "type": "click", "selector": "id=menu-item-close" },
+    { "type": "wait_for", "selector": "id=welcome-screen", "timeout": "10s" },
+    { "type": "click", "selector": "id=recent-documents" },
+    { "type": "wait_for", "selector": "id=recent-item-uitester-macos-test", "timeout": "5s" },
+    { "type": "click", "selector": "id=recent-item-uitester-macos-test" },
+    { "type": "wait_for", "selector": "id=document-window", "timeout": "10s" },
+    { "type": "assert_text", "selector": "id=text-area", "value": "macOS automation test content" },
+    { "type": "screenshot", "value": "results/macos-editor-reopened.png" }
+  ]
+}
