@@ -1,0 +1,22 @@
+{
+  "name": "Web: handle flaky third-party widget with sleep",
+  "tool": "chrome",
+  "base_url": "https://example.com/pricing",
+  "steps": [
+    { "type": "navigate", "value": "/" },
+    { "type": "wait_for", "selector": "#pricing-table", "timeout": "15s" },
+    { "type": "sleep", "timeout": "3s" },
+    { "type": "click", "selector": "#plan-pro" },
+    { "type": "wait_for", "selector": "#checkout-modal", "timeout": "10s" },
+    { "type": "sleep", "timeout": "2s" },
+    { "type": "click", "selector": "#modal-continue" },
+    { "type": "wait_for", "selector": "#payment-form", "timeout": "10s" },
+    { "type": "input", "selector": "#card-number", "value": "4242 4242 4242 4242", "sensitive": true },
+    { "type": "input", "selector": "#card-expiry", "value": "12/28", "sensitive": true },
+    { "type": "input", "selector": "#card-cvc", "value": "123", "sensitive": true },
+    { "type": "click", "selector": "#pay-now" },
+    { "type": "wait_for", "selector": "#payment-success", "timeout": "20s" },
+    { "type": "assert_text", "selector": "#payment-success", "value": "Payment successful" },
+    { "type": "screenshot", "value": "results/flaky-widget-payment-success.png" }
+  ]
+}

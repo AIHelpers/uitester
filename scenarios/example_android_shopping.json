@@ -1,0 +1,23 @@
+{
+  "name": "Android: browse products and add to wishlist",
+  "tool": "appium",
+  "steps": [
+    { "type": "wait_for", "selector": "id=home-screen", "timeout": "15s" },
+    { "type": "click", "selector": "id=category-button" },
+    { "type": "wait_for", "selector": "id=category-list", "timeout": "10s" },
+    { "type": "click", "selector": "id=category-shoes" },
+    { "type": "wait_for", "selector": "id=product-grid", "timeout": "10s" },
+    { "type": "click", "selector": "id=product-1" },
+    { "type": "wait_for", "selector": "id=product-detail", "timeout": "10s" },
+    { "type": "assert_text", "selector": "id=product-name", "value": "Running Sneakers" },
+    { "type": "click", "selector": "id=add-to-wishlist" },
+    { "type": "wait_for", "selector": "id=wishlist-toast", "timeout": "5s" },
+    { "type": "assert_text", "selector": "id=wishlist-toast", "value": "Added to wishlist" },
+    { "type": "click", "selector": "id=back-button" },
+    { "type": "wait_for", "selector": "id=product-grid", "timeout": "10s" },
+    { "type": "click", "selector": "id=wishlist-tab" },
+    { "type": "wait_for", "selector": "id=wishlist-screen", "timeout": "10s" },
+    { "type": "assert_exist", "selector": "id=wishlist-item-running-sneakers", "timeout": "5s" },
+    { "type": "screenshot", "value": "results/android-wishlist.png" }
+  ]
+}

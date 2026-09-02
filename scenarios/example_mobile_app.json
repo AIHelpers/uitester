@@ -1,0 +1,20 @@
+{
+  "name": "Mobile: register a new account",
+  "tool": "appium",
+  "steps": [
+    { "type": "wait_for", "selector": "id=onboarding-skip", "timeout": "15s" },
+    { "type": "click", "selector": "id=onboarding-skip" },
+    { "type": "wait_for", "selector": "id=register-button", "timeout": "10s" },
+    { "type": "click", "selector": "id=register-button" },
+    { "type": "wait_for", "selector": "id=register-form", "timeout": "10s" },
+    { "type": "input", "selector": "id=full-name", "value": "Alex Smith" },
+    { "type": "input", "selector": "id=email", "value": "alex.smith@example.com" },
+    { "type": "input", "selector": "id=password", "value": "S3cure-Passw0rd!", "sensitive": true },
+    { "type": "input", "selector": "id=confirm-password", "value": "S3cure-Passw0rd!", "sensitive": true },
+    { "type": "click", "selector": "id=terms-checkbox" },
+    { "type": "click", "selector": "id=submit-registration" },
+    { "type": "wait_for", "selector": "id=welcome-screen", "timeout": "15s" },
+    { "type": "assert_text", "selector": "id=welcome-title", "value": "Welcome, Alex!" },
+    { "type": "screenshot", "value": "results/mobile-registration-success.png" }
+  ]
+}

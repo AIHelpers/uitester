@@ -1,0 +1,24 @@
+{
+  "name": "Selenium: cross-browser form validation",
+  "tool": "selenium",
+  "base_url": "https://example.com/contact",
+  "steps": [
+    { "type": "navigate", "value": "/" },
+    { "type": "wait_for", "selector": "#contact-form", "timeout": "10s" },
+    { "type": "click", "selector": "#submit-empty-form" },
+    { "type": "wait_for", "selector": ".field-error", "timeout": "5s" },
+    { "type": "assert_text", "selector": "#name-error", "value": "Name is required" },
+    { "type": "assert_text", "selector": "#email-error", "value": "Email is required" },
+    { "type": "input", "selector": "#name", "value": "John Doe" },
+    { "type": "input", "selector": "#email", "value": "invalid-email" },
+    { "type": "click", "selector": "#submit-form" },
+    { "type": "wait_for", "selector": "#email-error", "timeout": "5s" },
+    { "type": "assert_text", "selector": "#email-error", "value": "Please enter a valid email address" },
+    { "type": "input", "selector": "#email", "value": "john.doe@example.com" },
+    { "type": "input", "selector": "#message", "value": "Hello, I would like to inquire about your services." },
+    { "type": "click", "selector": "#submit-form" },
+    { "type": "wait_for", "selector": "#success-message", "timeout": "10s" },
+    { "type": "assert_text", "selector": "#success-message", "value": "Your message has been sent successfully" },
+    { "type": "screenshot", "value": "results/selenium-form-success.png" }
+  ]
+}

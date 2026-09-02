@@ -63,9 +63,23 @@ default instead, and returns a clear "not supported" error for every method.
 ## Scenario format
 
 A scenario is a JSON file: a name, which tool to use, an optional base
-URL, and an ordered list of steps. See `scenarios/example_login.json`
-(browser) and `scenarios/example_desktop_app.json` (native Windows app via
-WinAppDriver).
+URL, and an ordered list of steps. The `scenarios/` directory ships with
+ready-to-adapt examples covering a range of app types:
+
+| Scenario file | Tool | App type |
+| --- | --- | --- |
+| `example_login.json` | `chrome` | Web — login flow |
+| `example_ecommerce_checkout.json` | `chrome` | Web — e-commerce search → cart → checkout |
+| `example_blog_cms.json` | `chrome` | Web — CMS admin: create & publish a post |
+| `example_spa_dashboard.json` | `chrome` | Web — SPA dashboard filtering & export |
+| `example_flaky_widget.json` | `chrome` | Web — third-party widget with `sleep` steps |
+| `example_selenium_cross_browser.json` | `selenium` | Web — cross-browser form validation |
+| `example_mobile_app.json` | `appium` | Mobile — account registration |
+| `example_android_shopping.json` | `appium` | Mobile — Android product browsing & wishlist |
+| `example_macos_app.json` | `appium` | Desktop — macOS text editor save/reopen |
+| `example_windows_calculator.json` | `winappdriver` | Desktop — Windows Calculator arithmetic |
+| `example_desktop_app.json` | `winappdriver` | Desktop — native Windows app (Notepad About) |
+| `example_desktop_notepad.json` | `desktop` | Desktop — local Win32 Notepad create & save |
 
 ```json
 {

@@ -1,0 +1,21 @@
+{
+  "name": "Windows Calculator: verify arithmetic operations",
+  "tool": "winappdriver",
+  "steps": [
+    { "type": "wait_for", "selector": "name=Clear", "timeout": "15s" },
+    { "type": "click", "selector": "name=Clear" },
+    { "type": "click", "selector": "name=Seven" },
+    { "type": "click", "selector": "name=Plus" },
+    { "type": "click", "selector": "name=Five" },
+    { "type": "click", "selector": "name=Equals" },
+    { "type": "wait_for", "selector": "name=CalculatorResults", "timeout": "5s" },
+    { "type": "assert_text", "selector": "name=CalculatorResults", "value": "12" },
+    { "type": "click", "selector": "name=Clear" },
+    { "type": "click", "selector": "name=Nine" },
+    { "type": "click", "selector": "name=Multiply by" },
+    { "type": "click", "selector": "name=Three" },
+    { "type": "click", "selector": "name=Equals" },
+    { "type": "assert_text", "selector": "name=CalculatorResults", "value": "27" },
+    { "type": "screenshot", "value": "results/calculator-arithmetic.png" }
+  ]
+}

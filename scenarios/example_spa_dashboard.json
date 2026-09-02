@@ -1,0 +1,23 @@
+{
+  "name": "SPA: dashboard data filtering and export",
+  "tool": "chrome",
+  "base_url": "https://analytics.example.com",
+  "steps": [
+    { "type": "navigate", "value": "/dashboard" },
+    { "type": "wait_for", "selector": "#dashboard-container", "timeout": "15s" },
+    { "type": "wait_for", "selector": ".chart", "timeout": "20s" },
+    { "type": "click", "selector": "#date-range-picker" },
+    { "type": "wait_for", "selector": ".date-range-option[data-value='last-30-days']", "timeout": "5s" },
+    { "type": "click", "selector": ".date-range-option[data-value='last-30-days']" },
+    { "type": "wait_for", "selector": ".chart", "timeout": "10s" },
+    { "type": "click", "selector": "#filter-category" },
+    { "type": "wait_for", "selector": ".filter-option[data-value='electronics']", "timeout": "5s" },
+    { "type": "click", "selector": ".filter-option[data-value='electronics']" },
+    { "type": "wait_for", "selector": "#total-revenue", "timeout": "10s" },
+    { "type": "assert_text", "selector": "#total-revenue", "value": "$12,847.50" },
+    { "type": "click", "selector": "#export-csv" },
+    { "type": "wait_for", "selector": "#export-success", "timeout": "10s" },
+    { "type": "assert_text", "selector": "#export-success", "value": "Export completed" },
+    { "type": "screenshot", "value": "results/spa-dashboard-filtered.png" }
+  ]
+}

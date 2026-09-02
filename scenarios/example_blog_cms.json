@@ -1,0 +1,28 @@
+{
+  "name": "CMS: create and publish a blog post",
+  "tool": "chrome",
+  "base_url": "https://admin.example-blog.com",
+  "steps": [
+    { "type": "navigate", "value": "/login" },
+    { "type": "wait_for", "selector": "#username", "timeout": "10s" },
+    { "type": "input", "selector": "#username", "value": "editor@example-blog.com" },
+    { "type": "input", "selector": "#password", "value": "editor-password", "sensitive": true },
+    { "type": "click", "selector": "#login-button" },
+    { "type": "wait_for", "selector": "#admin-dashboard", "timeout": "15s" },
+    { "type": "click", "selector": "#new-post" },
+    { "type": "wait_for", "selector": "#post-editor", "timeout": "10s" },
+    { "type": "input", "selector": "#post-title", "value": "Getting Started with UI Testing" },
+    { "type": "input", "selector": "#post-slug", "value": "getting-started-ui-testing" },
+    { "type": "input", "selector": "#post-content", "value": "UI testing is essential for delivering reliable software. This post covers the basics." },
+    { "type": "input", "selector": "#post-tags", "value": "testing, automation, go" },
+    { "type": "click", "selector": "#save-draft" },
+    { "type": "wait_for", "selector": "#save-status", "timeout": "5s" },
+    { "type": "assert_text", "selector": "#save-status", "value": "Draft saved" },
+    { "type": "click", "selector": "#publish-post" },
+    { "type": "wait_for", "selector": "#publish-confirm", "timeout": "5s" },
+    { "type": "click", "selector": "#confirm-publish" },
+    { "type": "wait_for", "selector": "#publish-status", "timeout": "10s" },
+    { "type": "assert_text", "selector": "#publish-status", "value": "Post published successfully" },
+    { "type": "screenshot", "value": "results/blog-post-published.png" }
+  ]
+}
