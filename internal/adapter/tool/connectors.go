@@ -6,6 +6,7 @@ package tool
 
 import (
 	"fmt"
+	"time"
 
 	"uitester/internal/adapter/driver/chromedpdriver"
 	"uitester/internal/adapter/driver/desktopdriver"
@@ -51,13 +52,28 @@ func (c WebDriverConnector) NewDriver(cfg map[string]interface{}) (domain.UIDriv
 }
 
 // DesktopConnector drives the local desktop directly (no remote server).
-// See internal/adapter/driver/desktopdriver for the -tags desktop opt-in.
+// Recognized cfg keys: app (string, path/command to launch), window_title
+// (string, substring of the main window's title), startup_timeout (string
+// duration, default 30s), working_dir (string, default the app's dir).
+// On Windows this is a real Win32 driver; elsewhere it returns errors.
 type DesktopConnector struct{}
 
 func (DesktopConnector) Name() string { return "desktop" }
 
 func (DesktopConnector) NewDriver(cfg map[string]interface{}) (domain.UIDriver, error) {
-	return desktopdriver.New(desktopdriver.Config{}), nil
+	dc := desktopdriver.Config{
+		App:         stringOr(cfg, "app", ""),
+		WindowTitle: stringOr(cfg, "window_title", ""),
+		WorkingDir:  stringOr(cfg, "working_dir", ""),
+	}
+	if t := stringOr(cfg, "startup_timeout", ""); t != "" {
+		d, err := time.ParseDuration(t)
+		if err != nil {
+			return nil, fmt.Errorf("tool %q: invalid startup_timeout %q: %w", "desktop", t, err)
+		}
+		dc.StartupTimeout = d
+	}
+	return desktopdriver.New(dc), nil
 }
 
 // RegisterDefaults registers every built-in connector. Call it once from
