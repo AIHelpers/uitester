@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>uitester</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">◆</span>
+    <span class="brand-name">uitester</span>
+    <span class="brand-sub">UI test runner</span>
+  </div>
+  <nav class="nav" id="nav">
+    <a href="#/scenarios" data-view="scenarios" class="nav-link">Scenarios</a>
+    <a href="#/results" data-view="results" class="nav-link">Results</a>
+    <a href="#/config" data-view="config" class="nav-link">Config</a>
+  </nav>
+  <div class="topbar-actions">
+    <button id="themeToggle" class="btn btn-ghost" title="Toggle dark mode">🌙</button>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- ======================= SCENARIOS VIEW ======================= -->
+  <section id="view-scenarios" class="view hidden">
+    <div class="view-head">
+      <h1>Scenarios</h1>
+      <div class="view-head-actions">
+        <button id="btnNewScenario" class="btn btn-primary">＋ New Scenario</button>
+      </div>
+    </div>
+
+    <div id="scenarioList" class="card-list"></div>
+
+    <!-- Editor -->
+    <div id="scenarioEditor" class="card hidden">
+      <div class="card-head">
+        <h2 id="editorTitle">Edit scenario</h2>
+        <div class="card-head-actions">
+          <button id="btnRunScenario" class="btn btn-accent">▶ Run</button>
+          <button id="btnDeleteScenario" class="btn btn-danger">Delete</button>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <label class="field">
+          <span>Name</span>
+          <input id="scName" type="text" placeholder="Login with valid credentials">
+        </label>
+        <label class="field">
+          <span>Tool</span>
+          <select id="scTool"></select>
+        </label>
+        <label class="field field-wide">
+          <span>Base URL <em>(optional)</em></span>
+          <input id="scBaseURL" type="text" placeholder="https://example.com/login">
+        </label>
+      </div>
+
+      <h3 class="section-label">Steps</h3>
+      <div class="table-wrap">
+        <table class="steps-table" id="stepsTable">
+          <thead>
+            <tr>
+              <th class="col-num">#</th>
+              <th class="col-type">Type</th>
+              <th>Selector</th>
+              <th>Value</th>
+              <th class="col-timeout">Timeout</th>
+              <th class="col-sens">Sensitive</th>
+              <th class="col-ops"></th>
+            </tr>
+          </thead>
+          <tbody id="stepsBody"></tbody>
+        </table>
+      </div>
+      <div class="steps-actions">
+        <button id="btnAddStep" class="btn">＋ Add Step</button>
+        <div class="spacer"></div>
+        <button id="btnCancelEdit" class="btn btn-ghost">Cancel</button>
+        <button id="btnSaveScenario" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= RUN VIEW ======================= -->
+  <section id="view-run" class="view hidden">
+    <div class="view-head">
+      <h1 id="runTitle">Run</h1>
+      <div class="view-head-actions">
+        <button id="btnStopRun" class="btn btn-danger">■ Stop</button>
+        <button id="btnBackFromRun" class="btn btn-ghost">← Back</button>
+      </div>
+    </div>
+
+    <div id="runOverview" class="run-overview"></div>
+
+    <div class="card">
+      <div class="card-head"><h2>Steps</h2></div>
+      <div class="table-wrap">
+        <table class="steps-table steps-live" id="runStepsTable">
+          <thead>
+            <tr>
+              <th class="col-num">#</th>
+              <th class="col-type">Type</th>
+              <th>Selector</th>
+              <th class="col-status">Status</th>
+              <th class="col-time">Time</th>
+              <th class="col-shot">Screenshot</th>
+            </tr>
+          </thead>
+          <tbody id="runStepsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="runLog" class="card run-log hidden">
+      <div class="card-head"><h2>Log</h2></div>
+      <pre id="runLogBody" class="log-body"></pre>
+    </div>
+
+    <div id="runShotWrap" class="card hidden">
+      <div class="card-head">
+        <h2 id="runShotTitle">Screenshot</h2>
+        <div class="card-head-actions">
+          <button id="btnOpenShot" class="btn btn-ghost" target="_blank">Open ↗</button>
+        </div>
+      </div>
+      <div class="shot-frame"><img id="runShotImg" alt="Latest screenshot"></div>
+    </div>
+  </section>
+
+  <!-- ======================= RESULTS VIEW ======================= -->
+  <section id="view-results" class="view hidden">
+    <div class="view-head">
+      <h1>Results</h1>
+      <div class="view-head-actions">
+        <button id="btnRefreshResults" class="btn btn-ghost">↻ Refresh</button>
+      </div>
+    </div>
+
+    <div id="resultsList" class="card-list"></div>
+
+    <div id="resultDetail" class="card hidden">
+      <div class="card-head">
+        <h2 id="resultTitle">Result</h2>
+        <div class="card-head-actions">
+          <button id="btnCloseResult" class="btn btn-ghost">Close</button>
+        </div>
+      </div>
+      <div id="resultMeta" class="result-meta"></div>
+      <div class="table-wrap">
+        <table class="steps-table">
+          <thead>
+            <tr>
+              <th class="col-num">#</th>
+              <th class="col-type">Type</th>
+              <th>Selector</th>
+              <th class="col-status">Status</th>
+              <th class="col-time">Time</th>
+              <th class="col-shot">Screenshot</th>
+            </tr>
+          </thead>
+          <tbody id="resultStepsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="resultShotWrap" class="card hidden">
+      <div class="card-head">
+        <h2>Screenshot</h2>
+        <div class="card-head-actions">
+          <button id="btnOpenResultShot" class="btn btn-ghost">Open ↗</button>
+        </div>
+      </div>
+      <div class="shot-frame"><img id="resultShotImg" alt="Screenshot"></div>
+    </div>
+  </section>
+
+  <!-- ======================= CONFIG VIEW ======================= -->
+  <section id="view-config" class="view hidden">
+    <div class="view-head">
+      <h1>Configuration</h1>
+      <div class="view-head-actions">
+        <button id="btnSaveConfig" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+    <div class="card">
+      <p class="hint">
+        This is the app config used for runs started from the UI (tool options, reporters,
+        screenshots). Saving rewrites <code id="configPathLabel">configs/config.example.json</code>;
+        changes take effect on the next run — no restart needed.
+      </p>
+      <div class="field field-wide">
+        <span>Raw JSON</span>
+        <textarea id="configText" rows="18" spellcheck="false" class="mono"></textarea>
+      </div>
+      <div id="configStatus" class="form-status hidden"></div>
+    </div>
+  </section>
+
+</main>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

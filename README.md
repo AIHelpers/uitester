@@ -14,6 +14,7 @@ internal/adapter/driver     concrete UIDriver implementations (chromedp, WebDriv
 internal/adapter/tool        ToolConnector wrappers that turn config into a driver
 internal/reporter            Reporter implementations (console, JSON file)
 internal/config               JSON config/scenario loading
+internal/ui                    embedded web UI (SPA + JSON API + live run events)
 configs/, scenarios/           example files
 examples/                       reference code not compiled into the module (see below)
 ```
@@ -125,6 +126,56 @@ is Allure's own, actively-maintained job. `internal/reporter/allure` has no
 external dependency (not even a UUID library — see `uuid.go`), consistent
 with the rest of the project.
 
+## Web UI
+
+The binary ships with a built-in single-page web app for editing scenarios,
+kicking off runs, and watching them live — no separate frontend build or
+deployment, the static files are embedded with `go:embed`:
+
+```bash
+./uitester -ui                              # serve at http://127.0.0.1:8080
+./uitester -ui -addr :9090                  # different port
+./uitester -ui -scenarios my/scenarios      # where scenario JSON files live
+```
+
+What it gives you:
+
+- **Scenario editor** — a list of every scenario file in the directory with
+  last-run badges, plus a table editor for the step list (add/remove/reorder
+  rows, mark values as `sensitive`, pick the tool from the registered set).
+  Saving writes the same JSON format the CLI reads; both front-ends share one
+  source of truth. Sensitive values round-trip verbatim through the editor
+  (a no-op save never destroys a stored secret) but are masked everywhere
+  results are shown.
+- **Live run monitor** — start a run from the browser and watch step-by-step
+  progress stream in over Server-Sent Events (polling fallback included):
+  current step, per-step log lines, auto-screenshot thumbnails, elapsed time,
+  and a Stop button. The event buffer is replayed on refresh, so reopening a
+  mid-run page shows the full history.
+- **Results + config views** — a history of runs this server process has
+  executed (with status, duration, and screenshot attachments) and an editor
+  for the app config JSON. Config edits take effect on the next run without
+  restarting the server.
+
+Everything the UI does is also scriptable — it's just a JSON API:
+
+| Endpoint | Purpose |
+| --- | --- |
+| `GET/POST /api/scenarios`, `GET/PUT/DELETE /api/scenarios/{id}` | scenario CRUD (files in `-scenarios` dir) |
+| `GET/PUT /api/config` | app config read/write |
+| `GET /api/tools` | registered tool names |
+| `POST /api/run` | start a run (`{"scenario": "<id or name>"}`), returns `run_id` |
+| `GET /api/run/{id}` | run status/progress snapshot |
+| `GET /api/run/{id}/events` | SSE stream of `step` and `done` events |
+| `POST /api/run/{id}/stop` | request cancellation |
+| `GET /api/results`, `GET /api/results/{id}` | finished-run history/detail |
+| `GET /api/screenshots/{name}` | screenshot files (traversal-safe) |
+| `GET /api/report` | raw JSON report file, when `reporters.json_path` is set |
+
+The UI is a thin adapter over the same `usecase.Runner` the CLI uses —
+no core logic was added or changed for it, and `internal/ui` is covered by
+its own `httptest`-based test suite (`internal/ui/api_test.go`).
+
 ## Running it
 
 ```bash
@@ -138,6 +189,7 @@ go build ./cmd/uitester
 # a scenario's "tool" at "selenium" / "appium" / "winappdriver".
 
 ./uitester -list-tools   # see every registered tool name
+./uitester -ui           # serve the web UI instead of a single run
 ```
 
 Exit code is `0` on pass, `1` on failure/error, `2` on bad CLI usage —

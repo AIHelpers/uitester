@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -197,4 +198,59 @@ func TestRunner_InvalidScenarioRejected(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected validation error for empty scenario, got nil")
 	}
+}
+
+func TestRunner_ProgressCallback(t *testing.T) {
+	driver := newFakeDriver()
+	reporter := &fakeReporter{}
+	runner := newRunnerWithFake(t, driver, reporter)
+
+	scenario := domain.Scenario{
+		Name: "progress callback",
+		Tool: "fake",
+		Steps: []domain.Action{
+			{Type: domain.ActionInput, Selector: "#user", Value: "Ada"},
+			{Type: domain.ActionClick, Selector: "#go"},
+		},
+	}
+
+	var (
+		mu     sync.Mutex
+		events []progressEvent
+	)
+	onProgress := func(stepIndex int, stepResult domain.StepResult) {
+		mu.Lock()
+		defer mu.Unlock()
+		events = append(events, progressEvent{index: stepIndex, status: stepResult.Status, selector: stepResult.Action.Selector})
+	}
+
+	result, err := runner.Run(context.Background(), scenario, nil, onProgress)
+	if err != nil {
+		t.Fatalf("Run returned error: %v", err)
+	}
+	if len(result.Steps) != 2 {
+		t.Fatalf("expected 2 steps in result, got %d", len(result.Steps))
+	}
+	if len(events) != 2 {
+		t.Fatalf("expected callback to fire once per step (2 total), got %d", len(events))
+	}
+	for i, ev := range events {
+		if ev.index != i {
+			t.Fatalf("event %d: expected step index %d, got %d", i, i, ev.index)
+		}
+		if ev.status != domain.StatusPassed {
+			t.Fatalf("event %d: expected status passed, got %s", i, ev.status)
+		}
+	}
+	if events[0].selector != "#user" || events[1].selector != "#go" {
+		t.Fatalf("unexpected selectors in progress events: %+v", events)
+	}
+}
+
+// progressEvent is what TestRunner_ProgressCallback records from each
+// ProgressFunc invocation, so assertions don't race with the callback.
+type progressEvent struct {
+	index    int
+	status   domain.Status
+	selector string
 }
